@@ -1,12 +1,10 @@
 DROP TABLE users; 
 
-CREATE TABLE users;
+DROP TABLE todo_lists;
 
-CREATE TABLE todo_lists;
+DROP TABLE user_lists;
 
-CREATE TABLE user_lists;
+DROP TABLE todo_items;
 
-CREATE TABLE todo_items;
-
-CREATE TABLE lists_items;
+DROP TABLE lists_items;
  
