@@ -1,13 +1,19 @@
 package main
 
 import (
+	"log"
+
 	"Todolist"
 	"Todolist/pkg/handler"
-	"log"
+	"Todolist/pkg/repository"
+	"Todolist/pkg/service"
 )
 
 func main() {
-	handlers := new(handler.Handler)
+	repos := repository.NewRepository()
+	services := service.NewService(repos)
+
+	handlers := handler.NewHandler(services)
 	srv := new(Todolist.Server)
 	if err := srv.Run("8000", handlers.InitRouters()); err != nil {
 		log.Fatalf("error occurred while running http server: %s", err.Error())
