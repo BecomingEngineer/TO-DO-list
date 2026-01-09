@@ -1,13 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"Todolist"
 	"Todolist/pkg/handler"
 	"Todolist/pkg/repository"
 	"Todolist/pkg/service"
 
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
+
+	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 )
 
@@ -15,7 +21,24 @@ func main() {
 	if err := initConfig(); err != nil {
 		log.Fatalf("error initializing config: %s", err.Error())
 	}
-	repos := repository.NewRepository()
+
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("error loading env variables: %s", err.Error())
+	}
+
+	db, err := NewPostgresDB(repository.Config{
+		Host:     viper.GetString("db.host"),
+		Port:     viper.GetString("db.port"),
+		Username: viper.GetString("db.username"),
+		DBname:   viper.GetString("db.dbname"),
+		SSLmode:  viper.GetString("db.sslmode"),
+		Password: os.Getenv("DB_PASSWORD"),
+	})
+	if err != nil {
+		log.Fatalf("failed to initialize db: %s", err.Error())
+	}
+
+	repos := repository.NewRepository(db)
 	services := service.NewService(repos)
 
 	handlers := handler.NewHandler(services)
@@ -30,4 +53,18 @@ func initConfig() error {
 	viper.SetConfigName("config")
 
 	return viper.ReadInConfig()
+}
+
+func NewPostgresDB(cfg repository.Config) (*sqlx.DB, error) {
+	db, err := sqlx.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		cfg.Host, cfg.Port, cfg.Username, cfg.Password, cfg.DBname, cfg.SSLmode))
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
 }
