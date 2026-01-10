@@ -13,7 +13,7 @@ CREATE TABLE todo_lists (
 );
 
 
-CREATE TABLE user_lists (
+CREATE TABLE users_lists (
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     list_id INT NOT NULL REFERENCES todo_lists(id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, list_id)
