@@ -28,4 +28,5 @@ func (h *Handler) signUp(c *gin.Context) {
 }
 
 func (h *Handler) signIn(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{"message": "sign in"})
 }
